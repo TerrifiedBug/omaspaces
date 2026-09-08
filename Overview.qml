@@ -137,9 +137,11 @@ Item {
     settleTimer.restart()
   }
 
-  // Returns true once every toplevel has answered; the caller decides whether
-  // to keep polling.
-  function applyBoard() {
+  // Only a complete snapshot is published: refreshToplevels() blanks every
+  // lastIpcObject until its reply lands, so assigning a partial tick would
+  // swap the board for an emptier one and flicker. `force` is the settle
+  // deadline — then draw whatever answered rather than nothing.
+  function applyBoard(force) {
     var monitors = [], clients = [], byAddress = ({}), complete = true
     var monitorValues = Hyprland.monitors.values
     for (var m = 0; m < monitorValues.length; m++) {
@@ -158,6 +160,7 @@ Item {
       byAddress[String(clientObject.address)] = toplevelValues[t]
     }
     if (monitors.length === 0) return false
+    if (!complete && force !== true) return false
     root.toplevelByAddress = byAddress
     root.board = Model.buildBoard(monitors, clients, root.workspaceCount)
     if (!root.validSelection(root.selection)) root.selection = Model.initialSelection(root.board)
@@ -242,7 +245,8 @@ Item {
     // is drawn without a thumbnail rather than holding the board back.
     onTriggered: {
       root.settleTicks += 1
-      if (root.applyBoard() || root.settleTicks >= 12) settleTimer.stop()
+      var deadline = root.settleTicks >= 12
+      if (root.applyBoard(deadline) || deadline) settleTimer.stop()
     }
   }
 
