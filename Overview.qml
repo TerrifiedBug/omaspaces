@@ -56,7 +56,7 @@ Item {
 
   readonly property color background: Color.menu.background
   readonly property color foreground: Color.menu.text
-  readonly property color faintForeground: Qt.darker(Color.menu.text, 1.8)
+  readonly property color faintForeground: Qt.darker(Color.menu.text, 1.5)
   readonly property color surfaceBorder: Color.menu.border
   readonly property string fontFamily: Style.font.menuFamily
   // Nerd Font glyphs come from the bar family; OMARCHY_MENU_FONT may point
@@ -293,7 +293,10 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: Color.menu.scrim
+      // The theme's scrim is tuned for a big opaque card floating on top of
+      // it; this board is sparse, so the desktop underneath keeps competing
+      // with the tiles at that strength. Same colour, dimmed harder.
+      color: Util.alpha(Color.menu.scrim, 0.8)
     }
 
     MouseArea {
