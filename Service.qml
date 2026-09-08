@@ -53,11 +53,14 @@ Item {
   // nothing at all, which is how the swipe came back dead after a reboot.
   readonly property bool luaReady: Hyprland.usingLua === true
 
+  // The guard is set after hl.gesture returns, never before: setting it first
+  // means a call that throws still leaves the guard behind, and every later
+  // attempt then reports "present" for a gesture that was never registered.
   readonly property string gestureLua:
     "if not _G.__omaspaces_gesture then " +
-    "_G.__omaspaces_gesture = true " +
     "hl.gesture({ fingers = 3, direction = \"up\", action = function() " +
     "hl.dispatch(hl.dsp.exec_raw([[omarchy-shell shell toggle " + manifestId + " '{}']])) end }) " +
+    "_G.__omaspaces_gesture = true " +
     "return \"registered\" end return \"present\""
 
   function setting(name, fallback) {
