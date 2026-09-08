@@ -131,7 +131,7 @@ Registration is guarded by a Lua global, so restarting the shell doesn't stack a
 second copy, and re-registered on `configreloaded` because a config reload
 rebuilds that state and drops runtime gestures.
 
-Two IPC calls report on it:
+Two IPC calls cover it:
 
 ```bash
 qs ipc -p "$OMARCHY_PATH/shell" call omaspaces status
@@ -140,7 +140,11 @@ qs ipc -p "$OMARCHY_PATH/shell" call omaspaces registerGesture
 
 `status` answers `{"gesture":true,"lua":true}` — `lua` is false on the legacy
 `hyprland.conf`, where `hl.gesture` does not exist and you bind the summon
-yourself.
+yourself. `registerGesture` registers the swipe if the guard says it isn't
+registered, and does nothing otherwise; it cannot replace a registration,
+because Hyprland has no way to remove one. If the swipe ever goes stale, run
+`hyprctl reload` — that clears runtime gestures and the guard together, and
+the service registers once more.
 
 ## Uninstall
 

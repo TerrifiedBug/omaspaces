@@ -129,8 +129,12 @@ Item {
       return JSON.stringify({ gesture: root.gestureEnabled, lua: Hyprland.usingLua === true })
     }
 
+    // Repair call for a swipe that never got registered — it does not force
+    // past the guard, because hl.gesture cannot be unregistered and a second
+    // registration would toggle the board twice per swipe. A registration
+    // that really is stale is cleared by `hyprctl reload`, which wipes the
+    // guard along with it and lets the configreloaded path register cleanly.
     function registerGesture(): string {
-      root.reregister = true
       root.registerGesture()
       return "ok"
     }
