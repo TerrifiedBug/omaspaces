@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.terrifiedbug.omaspaces",
+  "name": "OmaSpaces",
+  "version": "0.1.0",
+  "author": "TerrifiedBug",
+  "license": "MIT",
+  "description": "Mission-Control-style overview: workspaces across, grouped tabs down, live thumbnails, opened by a three-finger swipe up.",
+  "homepage": "https://github.com/TerrifiedBug/omaspaces",
+  "kinds": ["overlay", "service"],
+  "keepLoaded": true,
+  "entryPoints": { "overlay": "Overview.qml", "service": "Service.qml" }
+}
