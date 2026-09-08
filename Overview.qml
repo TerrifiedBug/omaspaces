@@ -98,6 +98,10 @@ Item {
     return value === undefined || value === null ? fallback : value
   }
 
+  function plural(count, word) {
+    return count + " " + word + (count === 1 ? "" : "s")
+  }
+
   // The summon contract passes a JSON string; the board takes no payload keys,
   // so the argument is accepted and ignored rather than parsed into nothing.
   function open(payloadJson) {
@@ -355,7 +359,7 @@ Item {
           textFormat: Text.PlainText
           text: root.board.length === 0
             ? "Loading…"
-            : root.workspaceCount + " workspaces · " + root.windowCount + " windows · " + root.groupCount + " groups"
+            : root.plural(root.workspaceCount, "workspace") + " · " + root.plural(root.windowCount, "window") + " · " + root.plural(root.groupCount, "group")
           font.family: root.fontFamily
           font.pixelSize: Style.font.bodySmall
           color: root.faintForeground
@@ -535,7 +539,7 @@ Item {
                         width: Math.min(Style.font.iconLarge, parent.height / 2)
                         height: width
                         sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
-                        sourceSize.height: sourceSize.width
+                        sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
                         source: root.appIcon(windowItem.modelData.appId)
@@ -688,8 +692,8 @@ Item {
                       height: contentTopInset + trayContent.height + contentBottomInset
                       radius: Style.cornerRadius
                       padding: Style.space(8)
-                      color: Util.alpha(Color.accent, 0.08)
-                      borderSpec: Border.flat(Util.alpha(Color.accent, 0.45), 1)
+                      color: Util.alpha(Color.accent, 0.12)
+                      borderSpec: Border.flat(Util.alpha(Color.accent, 0.6), 1)
 
                       Column {
                         id: trayContent
@@ -806,7 +810,7 @@ Item {
                                   width: Math.min(Style.font.iconLarge, parent.height - Style.space(4))
                                   height: width
                                   sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
-                                  sourceSize.height: sourceSize.width
+                                  sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
                                   fillMode: Image.PreserveAspectFit
                                   asynchronous: true
                                   source: root.appIcon(card.modelData.appId)
@@ -866,7 +870,7 @@ Item {
                                   width: Style.font.iconSmall
                                   height: width
                                   sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
-                                  sourceSize.height: sourceSize.width
+                                  sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
                                   fillMode: Image.PreserveAspectFit
                                   asynchronous: true
                                   source: root.appIcon(card.modelData.appId)
