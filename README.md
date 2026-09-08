@@ -125,11 +125,11 @@ visible, and the compositor still hands back real pixels for them, which is the
 trick the tab column is built on. If a capture ever comes back empty, the card
 falls back to the app icon.
 
-The gesture is registered at startup by the plugin's service with one `hyprctl
-repl` call, using Hyprland's Lua state instead of its config file. Registration
-is guarded by a Lua global, so restarting the shell doesn't stack a second copy,
-and re-registered on `configreloaded` because a config reload rebuilds that
-state and drops runtime gestures.
+The gesture is registered at startup by the plugin's service with a single
+`hyprctl repl` call, using Hyprland's Lua state instead of its config file.
+Registration is guarded by a Lua global, so restarting the shell doesn't stack
+a second copy, and it is re-registered on `configreloaded` because a config
+reload rebuilds that state and drops runtime gestures.
 
 Two IPC calls cover it:
 
