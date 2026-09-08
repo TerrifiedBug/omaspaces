@@ -692,7 +692,10 @@ Item {
                       height: contentTopInset + trayContent.height + contentBottomInset
                       radius: Style.cornerRadius
                       padding: Style.space(8)
-                      color: Util.alpha(Color.accent, 0.12)
+                      // Opaque so a busy desktop cannot show through the one
+                      // surface that has to read as "not a workspace", washed
+                      // with accent because the tiles above it are neutral.
+                      color: Qt.tint(root.background, Util.alpha(Color.accent, 0.14))
                       borderSpec: Border.flat(Util.alpha(Color.accent, 0.6), 1)
 
                       Column {
