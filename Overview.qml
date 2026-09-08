@@ -34,6 +34,8 @@ Item {
   property var toplevelByAddress: ({})
   property var selection: null
   property int settleTicks: 0
+  // Held between dismiss() and the dispatch that follows it; see activate().
+  property var pendingTarget: null
 
   readonly property string manifestId: manifest && manifest.id ? manifest.id : "io.github.terrifiedbug.omaspaces"
 
@@ -189,12 +191,15 @@ Item {
     if (target) root.activate(target)
   }
 
-  // Lua-form dispatches, the same ones the other Omarchy 4 overview plugins
-  // use. Focusing a background tab's address raises it inside its group.
+  // The board takes exclusive keyboard focus, and when its layer surface
+  // unmaps Hyprland gives focus back to the window it took it from — which
+  // silently undoes a focus dispatched while the board was still up (the
+  // workspace switch survived, the tab pick did not). So dismiss first and
+  // dispatch once the surface is gone.
   function activate(target) {
-    if (target.kind === "workspace") Hyprland.dispatch("hl.dsp.focus({ workspace = " + target.id + " })")
-    else Hyprland.dispatch("hl.dsp.focus({ window = \"address:" + target.address + "\" })")
+    root.pendingTarget = target
     root.dismiss()
+    activateTimer.restart()
   }
 
   function captureFor(address) {
@@ -238,6 +243,21 @@ Item {
     onTriggered: {
       root.settleTicks += 1
       if (root.applyBoard() || root.settleTicks >= 12) settleTimer.stop()
+    }
+  }
+
+  // Long enough for the layer surface to unmap and Hyprland to settle its
+  // focus; one frame is not.
+  Timer {
+    id: activateTimer
+    interval: 60
+
+    onTriggered: {
+      var target = root.pendingTarget
+      root.pendingTarget = null
+      if (!target) return
+      if (target.kind === "workspace") Hyprland.dispatch("hl.dsp.focus({ workspace = " + target.id + " })")
+      else Hyprland.dispatch("hl.dsp.focus({ window = \"address:" + target.address + "\" })")
     }
   }
 
