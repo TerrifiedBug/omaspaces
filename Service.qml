@@ -23,6 +23,12 @@ Item {
   // reload the previous registration is gone even if the guard survived.
   property bool reregister: false
 
+  // Confirmed once hyprctl answers "registered" or "present". Until then the
+  // retry below keeps trying, because a `hyprctl repl` issued while Hyprland
+  // is still coming up can fail and nothing else would notice.
+  property bool registered: false
+  property int attempts: 0
+
   readonly property string manifestId: manifest && manifest.id ? manifest.id : "io.github.terrifiedbug.omaspaces"
 
   // Services are not handed their inline settings either; read shell.json the
@@ -39,6 +45,14 @@ Item {
 
   readonly property bool gestureEnabled: setting("gesture", true) !== false
 
+  // hl.gesture only exists when Hyprland runs the Lua config. This has to be
+  // a bound property, not a read inside registerGesture(): the flag flips
+  // when the version query answers, a beat after the service is constructed,
+  // and nothing observes that flip unless something is bound to it. Reading
+  // it imperatively meant a shell started from a clean Lua state registered
+  // nothing at all, which is how the swipe came back dead after a reboot.
+  readonly property bool luaReady: Hyprland.usingLua === true
+
   readonly property string gestureLua:
     "if not _G.__omaspaces_gesture then " +
     "_G.__omaspaces_gesture = true " +
@@ -53,12 +67,9 @@ Item {
 
   function registerGesture() {
     if (!gestureEnabled) return
-    // hl.gesture only exists when Hyprland runs the Lua config. The flag
-    // starts false and flips when the version query answers, a beat after the
-    // service is constructed, so a false here is not yet a verdict — the
-    // Connections below retry on the change; only a legacy hyprland.conf
-    // leaves it false, and there the user binds the summon themselves (README).
-    if (Hyprland.usingLua !== true) return
+    // Only a legacy hyprland.conf leaves this false for good, and there the
+    // user binds the summon themselves (README).
+    if (!luaReady) return
     if (registerProc.running) return
     registerProc.running = true
   }
@@ -68,11 +79,22 @@ Item {
   // Flipping `gesture` back on in shell.json takes effect without a restart.
   onGestureEnabledChanged: if (gestureEnabled) registerGesture()
 
+  onLuaReadyChanged: registerGesture()
+
   FileView {
     id: shellConfig
     path: Quickshell.env("HOME") + "/.config/omarchy/shell.json"
     watchChanges: true
     printErrors: false
+  }
+
+  Timer {
+    id: retryTimer
+    interval: 2500
+    repeat: true
+    running: root.gestureEnabled && root.luaReady && !root.registered && root.attempts < 8
+
+    onTriggered: root.registerGesture()
   }
 
   // usingLua only ever flips false -> true, so a legacy hyprland.conf leaves
@@ -83,7 +105,7 @@ Item {
     interval: 3000
     running: root.gestureEnabled
 
-    onTriggered: if (Hyprland.usingLua !== true) console.warn("omaspaces: Hyprland is not running the Lua config; swipe-up not registered, bind it yourself (README)")
+    onTriggered: if (!root.luaReady) console.warn("omaspaces: Hyprland is not running the Lua config; swipe-up not registered, bind it yourself (README)")
   }
 
   Process {
@@ -96,7 +118,9 @@ Item {
       onStreamFinished: {
         var out = String(text || "").trim()
         root.reregister = false
-        if (out !== "registered" && out !== "present") console.warn("omaspaces: gesture registration failed:", out)
+        root.attempts = root.attempts + 1
+        root.registered = out === "registered" || out === "present"
+        if (!root.registered) console.warn("omaspaces: gesture registration failed:", out)
       }
     }
   }
@@ -104,17 +128,14 @@ Item {
   Connections {
     target: Hyprland
 
-    // Hyprland answers `hyprctl version` shortly after the shell starts, so
-    // this is where the startup registration usually lands.
-    function onUsingLuaChanged() {
-      root.registerGesture()
-    }
-
+    // A config reload rebuilds Hyprland's Lua state and drops the gesture
+    // along with the guard, so the previous confirmation no longer holds.
     function onRawEvent(event) {
-      if (event.name === "configreloaded") {
-        root.reregister = true
-        root.registerGesture()
-      }
+      if (event.name !== "configreloaded") return
+      root.reregister = true
+      root.registered = false
+      root.attempts = 0
+      root.registerGesture()
     }
   }
 
