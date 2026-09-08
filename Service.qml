@@ -53,12 +53,12 @@ Item {
 
   function registerGesture() {
     if (!gestureEnabled) return
-    // hl.gesture only exists when Hyprland runs the Lua config; on the legacy
-    // hyprland.conf the user binds the summon themselves (README).
-    if (Hyprland.usingLua !== true) {
-      console.warn("omaspaces: Hyprland is not running the Lua config; swipe-up not registered")
-      return
-    }
+    // hl.gesture only exists when Hyprland runs the Lua config. The flag
+    // starts false and flips when the version query answers, a beat after the
+    // service is constructed, so a false here is not yet a verdict — the
+    // Connections below retry on the change; only a legacy hyprland.conf
+    // leaves it false, and there the user binds the summon themselves (README).
+    if (Hyprland.usingLua !== true) return
     if (registerProc.running) return
     registerProc.running = true
   }
@@ -73,6 +73,17 @@ Item {
     path: Quickshell.env("HOME") + "/.config/omarchy/shell.json"
     watchChanges: true
     printErrors: false
+  }
+
+  // usingLua only ever flips false -> true, so a legacy hyprland.conf leaves
+  // the startup path silent. Say it once rather than letting the user wonder
+  // why the swipe does nothing.
+  Timer {
+    id: legacyNotice
+    interval: 3000
+    running: root.gestureEnabled
+
+    onTriggered: if (Hyprland.usingLua !== true) console.warn("omaspaces: Hyprland is not running the Lua config; swipe-up not registered, bind it yourself (README)")
   }
 
   Process {
@@ -92,6 +103,12 @@ Item {
 
   Connections {
     target: Hyprland
+
+    // Hyprland answers `hyprctl version` shortly after the shell starts, so
+    // this is where the startup registration usually lands.
+    function onUsingLuaChanged() {
+      root.registerGesture()
+    }
 
     function onRawEvent(event) {
       if (event.name === "configreloaded") {

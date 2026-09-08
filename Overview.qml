@@ -503,7 +503,7 @@ Item {
                         height: Math.min(parent.height, parent.width / srcAspect)
                         captureSource: root.captureFor(windowItem.modelData.address)
                         live: true
-                        paintCursors: false
+                        paintCursor: false
                         layer.enabled: true
                         layer.smooth: true
                         layer.effect: MultiEffect {
@@ -773,7 +773,7 @@ Item {
                                   height: Math.min(parent.height, parent.width / srcAspect)
                                   captureSource: root.captureFor(card.modelData.address)
                                   live: true
-                                  paintCursors: false
+                                  paintCursor: false
                                   opacity: card.modelData.front ? 1 : 0.8
                                   layer.enabled: true
                                   layer.smooth: true
