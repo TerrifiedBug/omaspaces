@@ -140,9 +140,10 @@ qs ipc -p "$OMARCHY_PATH/shell" call omaspaces registerGesture
 
 `status` answers `{"gesture":true,"lua":true}` — `lua` is false on the legacy
 `hyprland.conf`, where `hl.gesture` does not exist and you bind the summon
-yourself. `registerGesture` registers the swipe if the guard says it isn't
-registered, and does nothing otherwise; it cannot replace a registration,
-because Hyprland has no way to remove one. If the swipe ever goes stale, run
+yourself. `registerGesture` runs the same guarded registrar the service runs at
+startup, so it is normally a no-op: it consults the Lua guard, which is all
+anyone can consult — Hyprland will not say whether it still holds a gesture,
+and it has no way to remove one. If the swipe ever goes stale, run
 `hyprctl reload` — that clears runtime gestures and the guard together, and
 the service registers once more.
 
