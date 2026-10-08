@@ -170,6 +170,12 @@ overlay and its service are not replaced by that pass, so changes show up after
 `omarchy restart shell`. The board model in `Model.js` is Qt-free and testable
 without a shell: `node --test test/`.
 
+## Theme compatibility
+
+Theme colors use a namespaced `qs.Commons.Color` import to avoid Qt 6.12's
+`Color` name collision. This keeps the existing palette roles and fallbacks
+without changing the plugin's Omarchy requirements.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

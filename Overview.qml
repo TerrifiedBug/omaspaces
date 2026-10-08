@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import "Model.js" as Model
 
@@ -54,10 +55,10 @@ Item {
 
   readonly property int workspaceCount: Model.normalizeWorkspaceCount(setting("workspaces", Model.DEFAULT_WORKSPACES), Model.DEFAULT_WORKSPACES)
 
-  readonly property color background: Color.menu.background
-  readonly property color foreground: Color.menu.text
-  readonly property color faintForeground: Qt.darker(Color.menu.text, 1.5)
-  readonly property color surfaceBorder: Color.menu.border
+  readonly property color background: Commons.Color.menu.background
+  readonly property color foreground: Commons.Color.menu.text
+  readonly property color faintForeground: Qt.darker(Commons.Color.menu.text, 1.5)
+  readonly property color surfaceBorder: Commons.Color.menu.border
   readonly property string fontFamily: Style.font.menuFamily
   // Nerd Font glyphs come from the bar family; OMARCHY_MENU_FONT may point
   // menuFamily at a text font with no glyph coverage.
@@ -300,7 +301,7 @@ Item {
       // The theme's scrim is tuned for a big opaque card floating on top of
       // it; this board is sparse, so the desktop underneath keeps competing
       // with the tiles at that strength. Same colour, dimmed harder.
-      color: Util.alpha(Color.menu.scrim, 0.8)
+      color: Util.alpha(Commons.Color.menu.scrim, 0.8)
     }
 
     MouseArea {
@@ -440,7 +441,7 @@ Item {
               width: focusedChip.implicitWidth + Style.space(8)
               height: focusedChip.implicitHeight + Style.space(2)
               radius: Style.space(3)
-              color: Util.alpha(Color.accent, 0.18)
+              color: Util.alpha(Commons.Color.accent, 0.18)
 
               Text {
                 id: focusedChip
@@ -449,7 +450,7 @@ Item {
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
                 font.bold: true
-                color: Color.accent
+                color: Commons.Color.accent
               }
             }
           }
@@ -474,7 +475,7 @@ Item {
                 height: section.tileHeight
                 radius: Style.cornerRadius
                 color: root.background
-                borderSpec: workspace.current ? Border.flat(Color.accent, 2) : Border.flat(root.surfaceBorder, 1)
+                borderSpec: workspace.current ? Border.flat(Commons.Color.accent, 2) : Border.flat(root.surfaceBorder, 1)
 
                 MouseArea {
                   anchors.fill: parent
@@ -520,7 +521,7 @@ Item {
                       Rectangle {
                         anchors.fill: parent
                         radius: root.thumbRadius
-                        color: Color.menu.selectedBackground
+                        color: Commons.Color.menu.selectedBackground
                       }
 
                       ScreencopyView {
@@ -591,7 +592,7 @@ Item {
                           text: "\uf24d  " + windowItem.modelData.groupSize // nf-fa-clone
                           font.family: root.glyphFamily
                           font.pixelSize: Style.font.caption
-                          color: Color.accent
+                          color: Commons.Color.accent
                         }
                       }
 
@@ -612,7 +613,7 @@ Item {
                   width: numberChip.implicitWidth + Style.space(10)
                   height: numberChip.implicitHeight + Style.space(4)
                   radius: Style.space(3)
-                  color: Color.menu.selectedBackground
+                  color: Commons.Color.menu.selectedBackground
 
                   Text {
                     id: numberChip
@@ -634,7 +635,7 @@ Item {
                   width: currentChip.implicitWidth + Style.space(8)
                   height: currentChip.implicitHeight + Style.space(2)
                   radius: Style.space(3)
-                  color: Util.alpha(Color.accent, 0.18)
+                  color: Util.alpha(Commons.Color.accent, 0.18)
 
                   Text {
                     id: currentChip
@@ -643,7 +644,7 @@ Item {
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                     font.bold: true
-                    color: Color.accent
+                    color: Commons.Color.accent
                   }
                 }
 
@@ -656,7 +657,7 @@ Item {
                   radius: Style.cornerRadius
                   color: "transparent"
                   border.width: Math.max(1, Style.space(2))
-                  border.color: Style.focusStateColor(root.foreground, Color.accent)
+                  border.color: Style.focusStateColor(root.foreground, Commons.Color.accent)
                 }
               }
             }
@@ -697,7 +698,7 @@ Item {
                       Math.round((frontTab.rect.x + frontTab.rect.w / 2) * slot.width - width / 2)))
                     width: Math.max(1, Style.space(2))
                     height: slot.railHeight
-                    color: Color.accent
+                    color: Commons.Color.accent
                   }
                 }
 
@@ -722,8 +723,8 @@ Item {
                       // Opaque so a busy desktop cannot show through the one
                       // surface that has to read as "not a workspace", washed
                       // with accent because the tiles above it are neutral.
-                      color: Qt.tint(root.background, Util.alpha(Color.accent, 0.14))
-                      borderSpec: Border.flat(Util.alpha(Color.accent, 0.6), 1)
+                      color: Qt.tint(root.background, Util.alpha(Commons.Color.accent, 0.14))
+                      borderSpec: Border.flat(Util.alpha(Commons.Color.accent, 0.6), 1)
 
                       Column {
                         id: trayContent
@@ -742,7 +743,7 @@ Item {
                           font.pixelSize: Style.font.caption
                           font.bold: true
                           font.letterSpacing: 1
-                          color: Color.accent
+                          color: Commons.Color.accent
                           elide: Text.ElideRight
                           width: parent.width
                         }
@@ -764,7 +765,7 @@ Item {
                             radius: Style.space(6)
                             padding: Style.space(4)
                             color: root.background
-                            borderSpec: modelData.front ? Border.flat(Color.accent, 2) : Border.flat(root.surfaceBorder, 1)
+                            borderSpec: modelData.front ? Border.flat(Commons.Color.accent, 2) : Border.flat(root.surfaceBorder, 1)
 
                             MouseArea {
                               anchors.fill: parent
@@ -789,7 +790,7 @@ Item {
                                 Rectangle {
                                   anchors.fill: parent
                                   radius: root.thumbRadius
-                                  color: Color.menu.selectedBackground
+                                  color: Commons.Color.menu.selectedBackground
                                 }
 
                                 // A group's background tab is mapped but not
@@ -863,7 +864,7 @@ Item {
                                     font.family: root.fontFamily
                                     font.pixelSize: Style.font.caption
                                     font.bold: true
-                                    color: Color.accent
+                                    color: Commons.Color.accent
                                   }
                                 }
                               }
@@ -880,7 +881,7 @@ Item {
                                   width: card.footerHeight
                                   height: card.footerHeight
                                   radius: width / 2
-                                  color: card.modelData.front ? Color.accent : "transparent"
+                                  color: card.modelData.front ? Commons.Color.accent : "transparent"
                                   border.width: card.modelData.front ? 0 : 1
                                   border.color: root.surfaceBorder
 
@@ -926,7 +927,7 @@ Item {
                               radius: Style.space(6)
                               color: "transparent"
                               border.width: Math.max(1, Style.space(2))
-                              border.color: Style.focusStateColor(root.foreground, Color.accent)
+                              border.color: Style.focusStateColor(root.foreground, Commons.Color.accent)
                             }
                           }
                         }
